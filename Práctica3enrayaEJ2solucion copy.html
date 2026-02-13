@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Ejercicio 2 - Caja X</title>
+  <style>
+
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    
+    .caja {
+      width: 100px;
+      height: 100px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      
+      /* Centrar texto usando Flexbox */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      
+      font-size: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none; /* Evita seleccionar el texto */
+      transition: background-color 0.3s;
+    }
+    
+    .caja:hover {
+      background-color: #f0f0f0;
+    }
+    #caja {
+      background-color: #d90606;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Ejercicio 2 - Caja que muestra X</h1>
+  <p>Haz clic en la caja</p>
+  
+  <div id="caja" class="caja"></div>
+
+  <script>
+    // ========== SOLUCIÓN EJERCICIO 2 ==========
+    
+    // 1) SELECCIONAR LA CAJA
+    // Podemos seleccionar por ID (#caja) o por clase (.caja)
+    // Por ID es más específico
+    const caja = document.querySelector('#caja');
+    
+    // 2) AÑADIR EVENT LISTENER
+    caja.addEventListener('click', () => {
+      // textContent modifica el TEXTO dentro de un elemento
+      // Es la forma recomendada (más rápida y segura)
+      caja.textContent = "X";
+    });
+    
+    // ========== CONCEPTOS CLAVE ==========
+    // ✅ textContent - Modifica el texto de un elemento
+    // ✅ Es MEJOR que innerText e innerHTML porque:
+    //    • textContent: Más rápido, seguro, estándar moderno
+    //    • innerText: Respeta el CSS (más lento)
+    //    • innerHTML: Puede ser peligroso (XSS), solo para HTML
+    
+    // ========== COMPARACIÓN ==========
+    // textContent vs innerText vs innerHTML:
+    
+    // textContent - ✅ RECOMENDADO para texto simple
+    // caja.textContent = "X";
+    
+    // innerText - Solo si necesitas que respete el CSS
+    // caja.innerText = "X";
+    
+    // innerHTML - ⚠️ Solo para insertar HTML, NUNCA para texto del usuario
+    // caja.innerHTML = "<strong>X</strong>"; // Podría ser peligroso
+    
+    // ========== NOTA DE SEGURIDAD ==========
+    // Si usas innerHTML con datos del usuario, un atacante podría
+    // inyectar código malicioso (XSS - Cross-Site Scripting)
+    // Ejemplo peligroso:
+    // caja.innerHTML = userInput; // ⚠️ NUNCA hagas esto!
+    // Si el usuario escribe: <script>alert('Hackeado!')</script>
+    // ¡El script se ejecutaría!
+  </script>
+
+</body>
+</html>

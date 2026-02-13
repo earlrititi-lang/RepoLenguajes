@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modificar Clases en un Elemento</title>
+<style>
+
+.red { color: red; }
+.bold { font-weight: bold; }
+h1 { font-weight: normal;}
+</style>
+</head>
+
+<body>
+<h1 id="text">Este es un texto de ejemplo.</h1>
+<button id="toggleButton">Cambiar Estilo</button>
+
+<script>
+
+const button = document.getElementById('toggleButton');
+const text = document.getElementById('text');
+
+button.addEventListener('click', () => {
+text.classList.toggle('red');
+text.classList.toggle('bold');
+});
+</script>
+</body>
+</html>

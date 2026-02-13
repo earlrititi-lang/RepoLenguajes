@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Ejercicio 1 - Cambiar Imagen</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    img {
+      border: 2px solid #333;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Ejercicio 1 - Cambiar Imagen</h1>
+  
+  <!-- Placeholder de imagen: usamos picsum.photos para imágenes aleatorias -->
+  <img id="foto" 
+       src="https://picsum.photos/300/200?random=1" 
+       alt="Imagen inicial" 
+       width="300">
+
+  <br>
+  <button id="btnCambiar">Cambiar Imagen</button>
+
+  <script>
+    // ========== SOLUCIÓN EJERCICIO 1 ==========
+    
+    // 1) SELECCIONAR ELEMENTOS CON querySelector
+    // querySelector() busca elementos usando selectores CSS
+    // El símbolo # indica que buscamos por ID
+    const img = document.querySelector('#foto');
+    const btn = document.querySelector('#btnCambiar');
+    
+    // 2) AÑADIR EVENT LISTENER
+    // addEventListener() escucha eventos en un elemento
+    // Sintaxis: elemento.addEventListener('tipoEvento', función)
+    // 'click' = cuando el usuario hace clic
+    // Arrow function (=>) = función moderna de JavaScript
+    btn.addEventListener('click', () => {
+      // Modificar el atributo 'src' de la imagen
+      // src = source (fuente/origen de la imagen)
+      // Cambiamos el número random para obtener una imagen diferente
+      img.src = "https://picsum.photos/300/200?random=2";
+      
+      // NOTA: Cada vez que hagas clic, verás la misma segunda imagen
+      // Para cambiar aleatoriamente cada vez, podrías usar:
+      // img.src = `https://picsum.photos/300/200?random=${Math.random()}`;
+    });
+    
+    // ========== CONCEPTOS CLAVE ==========
+    // ✅ querySelector('#id') - Busca UN elemento por su ID
+    // ✅ elemento.src - Modifica el atributo src de una imagen
+    // ✅ addEventListener('click', función) - Escucha clicks
+    // ✅ Arrow functions (=>) - Sintaxis moderna para funciones
+    
+    // ========== ALTERNATIVAS ==========
+    // También podrías haber usado:
+    // const img = document.getElementById('foto'); // Solo para IDs
+    // const btn = document.querySelector('button'); // Por etiqueta
+  </script>
+
+</body>
+</html>

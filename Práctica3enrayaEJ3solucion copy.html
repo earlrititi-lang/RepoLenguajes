@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Ejercicio 3 - Alternar X y O</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    
+    .caja {
+      width: 100px;
+      height: 100px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.3s;
+    }
+    
+    .caja:hover {
+      background-color: #f0f0f0;
+      transform: scale(1.05); /* Efecto de agrandamiento */
+    }
+    
+    .info {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #e3f2fd;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Ejercicio 3 - Alternar Turnos</h1>
+  <div class="info">Turno actual: <strong id="turnoActual">X</strong></div>
+  
+  <div id="caja" class="caja"></div>
+
+  <script>
+    // ========== SOLUCIÓN EJERCICIO 3 ==========
+    
+    // 1) VARIABLE DE ESTADO PARA EL TURNO
+    // 'let' permite modificar el valor (a diferencia de 'const')
+    // Esta variable se mantiene entre clicks - es el "estado" del juego
+    let turno = "X";
+    
+    // 2) SELECCIONAR ELEMENTOS
+    const caja = document.querySelector('#caja');
+    const turnoActual = document.querySelector('#turnoActual');
+    
+    // 3) AÑADIR EVENT LISTENER
+    caja.addEventListener('click', () => {
+      // PASO 1: Escribir el turno ACTUAL en la caja
+      caja.textContent = turno;
+      
+      // PASO 2: Cambiar al SIGUIENTE turno usando operador ternario
+      // Operador ternario: condición ? valorSiTrue : valorSiFalse
+      // Se lee: "Si turno es X, entonces cambia a O, sino cambia a X"
+      turno = turno === "X" ? "O" : "X";
+
+      
+      // PASO 3: Actualizar el indicador visual de turno
+      turnoActual.textContent = turno;
+    });
+    
+    // ========== CONCEPTOS CLAVE ==========
+    // ✅ Variables de estado - Mantienen información entre eventos
+    // ✅ let vs const:
+    //    • let - Permite reasignar el valor (turno = "O")
+    //    • const - NO permite reasignar (caja = otraCosa daría error)
+    
+    // ✅ Operador ternario - Atajo para if/else
+    //    Forma larga (equivalente):
+    //    if (turno === "X") {
+    //      turno = "O";
+    //    } else {
+    //      turno = "X";
+    //    }
+    
+    // ========== FLUJO DE EJECUCIÓN ==========
+    // Click 1:
+    //   1. caja.textContent = "X" (turno actual)
+    //   2. turno = "O" (cambia para el próximo)
+    //   3. turnoActual.textContent = "O"
+    
+    // Click 2:
+    //   1. caja.textContent = "O" (turno actual)
+    //   2. turno = "X" (cambia para el próximo)
+    //   3. turnoActual.textContent = "X"
+    
+    // Click 3:
+    //   1. caja.textContent = "X" (turno actual)
+    //   2. turno = "O" (cambia para el próximo)
+    //   3. turnoActual.textContent = "O"
+    // ...y así sucesivamente
+    
+    // ========== ORDEN IMPORTANTE ==========
+    // ⚠️ INCORRECTO - cambiar turno antes de escribir:
+    // turno = turno === "X" ? "O" : "X"; // ❌ Cambia primero
+    // caja.textContent = turno; // ❌ Escribe el NUEVO turno (mal)
+    
+    // ✅ CORRECTO - escribir antes de cambiar:
+    // caja.textContent = turno; // ✅ Escribe el turno ACTUAL
+    // turno = turno === "X" ? "O" : "X"; // ✅ Cambia para el próximo
+  </script>
+
+</body>
+</html>

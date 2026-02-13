@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lista de Tareas Dinámica</title>
+</head>
+<body>
+
+<form id="taskForm">
+<input type="text" id="taskInput" placeholder="Nueva tarea">
+<button type="submit">Agregar</button>
+</form>
+
+<ul id="taskList"></ul>
+<button id="clearTasks">Borrar todas las tareas</button>
+
+<script>
+
+const form = document.getElementById('taskForm');
+const taskInput = document.getElementById('taskInput');
+const taskList = document.getElementById('taskList');
+const clearButton = document.getElementById('clearTasks');
+
+form.addEventListener('submit', (event) => {
+event.preventDefault();
+
+const taskText = taskInput.value.trim();
+
+if (taskText !== "") {
+const newTask = document.createElement('li');
+newTask.textContent = taskText;
+taskList.appendChild(newTask);
+taskInput.value = "";
+}
+});
+clearButton.addEventListener('click', () => {
+    
+    //Obtenemos todas las tareas actuales (0,1,2..)
+    const tasks=taskList.children;
+    //Si no hay tareas
+    if(tasks.length ===0){
+        alert("No hay tareas para borrar");
+        return;
+    }
+
+    //Pedimos al usuario el numero de tarea que quiere borrar
+    const position = prompt("Que tarea quieres borrar? (Introduce un número entre 1 y "+ tasks.length +")");
+
+    //Convertimos el valor a número
+    const index = Number(position)-1;
+
+
+    //Validamos que el valor sea un número 
+    if (isNaN(index)){
+        alert("Por favor, introduce un número válido.");
+        return;
+    }
+
+    //Validamos que el número esté dentro del rango
+    if (index < 0 || index >= tasks.length){
+        alert("Número fuera de rango. ");
+        return;
+    }
+
+    //Borramos la tarea seleccionada
+    taskList.removeChild(tasks[index]);
+
+
+});
+</script>
+</body>
+</html>

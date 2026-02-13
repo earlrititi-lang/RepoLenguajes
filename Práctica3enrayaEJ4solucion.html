@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Ejercicio 4 - Bloquear Casilla</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    
+    .caja {
+      width: 100px;
+      height: 100px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.3s;
+    }
+    
+    .caja:hover {
+      background-color: #f0f0f0;
+      transform: scale(1.05);
+    }
+    
+    /* Clase para casillas bloqueadas */
+    .bloqueada {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    
+    .bloqueada:hover {
+      background-color: transparent;
+      transform: none; /* No se agranda */
+    }
+    
+    .info {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #e3f2fd;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Ejercicio 4 - Validación</h1>
+  <div class="info">Turno: <strong id="turnoActual">X</strong></div>
+  
+  <div id="caja" class="caja"></div>
+  
+  <p style="margin-top: 20px; color: #666;">
+    💡 Intenta hacer clic varias veces en la caja. 
+    Solo funcionará la primera vez.
+  </p>
+
+  <script>
+    // ========== SOLUCIÓN EJERCICIO 4 ==========
+    
+    // Variables de estado
+    let turno = "X";
+    const caja = document.querySelector('#caja');
+    const turnoActual = document.querySelector('#turnoActual');
+    
+    caja.addEventListener('click', () => {
+      // ========== GUARD CLAUSE ==========
+      // Verificamos si la casilla YA está ocupada
+      // Si tiene contenido (X o O), salimos inmediatamente de la función
+      if (caja.textContent !== "") {
+        console.log("❌ Casilla ocupada, no se puede cambiar");
+        return; // Sale de la función aquí mismo
+      }
+      
+      // ========== CÓDIGO PRINCIPAL ==========
+      // Solo se ejecuta si la casilla está vacía
+      console.log("✅ Casilla vacía, se puede jugar");
+      
+      // Escribir el turno actual
+      caja.textContent = turno;
+      
+      // Añadir clase visual para mostrar que está bloqueada
+      caja.classList.add('bloqueada');
+      
+      // Cambiar turno para el próximo jugador
+      turno = turno === "X" ? "O" : "X";
+      turnoActual.textContent = turno;
+    });
+    
+    // ========== CONCEPTOS CLAVE ==========
+    
+    // ✅ GUARD CLAUSE (Cláusula de guarda)
+    // Es un patrón que verifica condiciones al inicio
+    // Si la condición no se cumple, sale temprano con 'return'
+    // Ventajas:
+    //   • Código más legible
+    //   • Evita anidamiento profundo de if/else
+    //   • Hace obvias las condiciones para continuar
+    
+    // ✅ classList.add('clase')
+    // Añade una clase CSS al elemento
+    // Métodos relacionados:
+    //   • classList.add('clase') - Añade clase
+    //   • classList.remove('clase') - Quita clase
+    //   • classList.toggle('clase') - Alterna (añade/quita)
+    //   • classList.contains('clase') - Verifica si tiene la clase
+    
+    // ========== COMPARACIÓN DE ESTILOS ==========
+    
+    // ❌ ESTILO ANTIGUO - Con if/else anidado:
+    // caja.addEventListener('click', () => {
+    //   if (caja.textContent === "") {
+    //     caja.textContent = turno;
+    //     caja.classList.add('bloqueada');
+    //     turno = turno === "X" ? "O" : "X";
+    //     turnoActual.textContent = turno;
+    //   } else {
+    //     // No hacer nada
+    //   }
+    // });
+    
+    // ✅ ESTILO MODERNO - Con guard clause:
+    // caja.addEventListener('click', () => {
+    //   if (caja.textContent !== "") return; // Sale si está ocupada
+    //   
+    //   // Todo el código de "caso feliz" sin anidamiento
+    //   caja.textContent = turno;
+    //   caja.classList.add('bloqueada');
+    //   turno = turno === "X" ? "O" : "X";
+    //   turnoActual.textContent = turno;
+    // });
+    
+    // ========== FLUJO DE EJECUCIÓN ==========
+    // Primer click:
+    //   1. Verifica: caja.textContent !== "" → false (está vacía)
+    //   2. NO ejecuta return
+    //   3. Escribe "X"
+    //   4. Añade clase 'bloqueada'
+    //   5. Cambia turno a "O"
+    
+    // Segundo click:
+    //   1. Verifica: caja.textContent !== "" → true (tiene "X")
+    //   2. Ejecuta return (sale de la función)
+    //   3. No ejecuta nada más
+    
+    // Tercer click, cuarto, quinto...:
+    //   Siempre sale en el return, nunca cambia
+    
+    // ========== POR QUÉ FUNCIONA ==========
+    // La clave está en que textContent PERSISTE entre clicks
+    // Una vez que escribimos "X", ese valor se queda ahí
+    // Cada nuevo click encuentra ese "X" y sale inmediatamente
+  </script>
+
+</body>
+</html>

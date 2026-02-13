@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ejemplo DOM</title>
+
+<style>
+.hide { visibility: hidden; }
+.show { visibility:visible; }
+</style>
+</head>
+<body>
+
+<main class="wrapper" data-id="wrapper">
+<h1 data-id="titulo">Ejemplo DOM</h1>
+<button data-id="button-hide">Ocultar Sección</button>
+<button data-id="button-show">Mostrar Sección</button>
+<button id="toggle-section">Alternar Sección</button>
+</main>
+
+<script>
+
+const titulo = document.querySelector('[data-id="titulo"]');
+const wrapper = document.querySelector('[data-id="wrapper"]');
+const hideButton = document.querySelector('[data-id="button-hide"]');
+const showButton = document.querySelector('[data-id="button-show"]');
+const toggleButton = document.getElementById('toggle-section');
+
+hideButton.addEventListener('click', () => titulo.classList.add('hide'));
+showButton.addEventListener('click', () => titulo.classList.remove('hide'));
+toggleButton.addEventListener('click', () => titulo.classList.toggle('hide'));
+
+</script>
+
+</body>
+</html>
