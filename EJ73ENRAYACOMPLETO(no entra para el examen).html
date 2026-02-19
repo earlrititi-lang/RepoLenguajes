@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Tres en Raya Completo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    h1 {
+      color: white;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .info {
+      background: white;
+      padding: 15px 30px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      min-width: 250px;
+      text-align: center;
+    }
+    
+    .tablero {
+      display: grid;
+      grid-template-columns: repeat(3, 120px);
+      grid-template-rows: repeat(3, 120px);
+      gap: 8px;
+      background-color: #2c3e50;
+      padding: 8px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    
+    .casilla {
+      background-color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 64px;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.3s;
+      border-radius: 4px;
+    }
+    
+    .casilla:hover:not(.ocupada) {
+      background-color: #ecf0f1;
+      transform: scale(1.05);
+    }
+    
+    .casilla.ocupada {
+      cursor: not-allowed;
+    }
+    
+    .x {
+      color: #e74c3c;
+      animation: aparece 0.3s ease-out;
+    }
+    
+    .o {
+      color: #3498db;
+      animation: aparece 0.3s ease-out;
+    }
+    
+    @keyframes aparece {
+      from {
+        transform: scale(0);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    
+    .ganadora {
+      background-color: #2ecc71 !important;
+      animation: victoria 0.6s ease-in-out;
+    }
+    
+    @keyframes victoria {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    .controles {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    .mensaje {
+      background: white;
+      padding: 20px 40px;
+      border-radius: 8px;
+      margin-top: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      font-size: 20px;
+      font-weight: bold;
+      display: none;
+    }
+    
+    .mensaje.visible {
+      display: block;
+      animation: aparece 0.5s ease-out;
+    }
+    
+    .mensaje.victoria {
+      color: #27ae60;
+    }
+    
+    .mensaje.empate {
+      color: #f39c12;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎮 Tres en Raya</h1>
+  
+  <div class="info">
+    Turno: <strong id="turnoActual">X</strong>
+  </div>
+
+  <div class="tablero" id="tablero">
+    <div class="casilla" data-index="0"></div>
+    <div class="casilla" data-index="1"></div>
+    <div class="casilla" data-index="2"></div>
+    <div class="casilla" data-index="3"></div>
+    <div class="casilla" data-index="4"></div>
+    <div class="casilla" data-index="5"></div>
+    <div class="casilla" data-index="6"></div>
+    <div class="casilla" data-index="7"></div>
+    <div class="casilla" data-index="8"></div>
+  </div>
+
+  <div class="controles">
+    <button id="btnReiniciar">🔄 Reiniciar</button>
+  </div>
+
+  <div id="mensaje" class="mensaje"></div>
+
+  <script>
+    // ========== SOLUCIÓN EJERCICIO 7 - TRES EN RAYA COMPLETO ==========
+    
+    // ========== CONFIGURACIÓN ==========
+    // Array bidimensional con todas las combinaciones ganadoras posibles
+    // Cada sub-array contiene los índices de las casillas que forman una línea
+    const COMBINACIONES_GANADORAS = [
+      [0, 1, 2], // Fila superior (horizontal)
+      [3, 4, 5], // Fila media (horizontal)
+      [6, 7, 8], // Fila inferior (horizontal)
+      [0, 3, 6], // Columna izquierda (vertical)
+      [1, 4, 7], // Columna media (vertical)
+      [2, 5, 8], // Columna derecha (vertical)
+      [0, 4, 8], // Diagonal \ (de arriba-izq a abajo-der)
+      [2, 4, 6]  // Diagonal / (de arriba-der a abajo-izq)
+    ];
+    // Visual del tablero con índices:
+    // [0] [1] [2]
+    // [3] [4] [5]
+    // [6] [7] [8]
+    
+    // ========== ESTADO DEL JUEGO ==========
+    let turno = "X"; // Jugador actual
+    let juegoActivo = true; // ¿Se puede seguir jugando?
+    
+    // Seleccionar TODAS las casillas (devuelve NodeList similar a array)
+    const casillas = document.querySelectorAll('.casilla');
+    const tablero = document.querySelector('#tablero');
+    const turnoActual = document.querySelector('#turnoActual');
+    const btnReiniciar = document.querySelector('#btnReiniciar');
+    const mensaje = document.querySelector('#mensaje');
+    
+    // ========== FUNCIONES DE VERIFICACIÓN ==========
+    
+    /**
+     * Verifica si hay un ganador
+     * @returns {Object|null} - Objeto con ganador y combinación, o null si no hay ganador
+     */
+    function verificarVictoria() {
+      // Iterar sobre cada combinación ganadora
+      for (const combinacion of COMBINACIONES_GANADORAS) {
+        // Destructuring: extraer los 3 índices de la combinación
+        const [a, b, c] = combinacion;
+        
+        // Obtener el contenido de cada casilla
+        const casilla1 = casillas[a].textContent;
+        const casilla2 = casillas[b].textContent;
+        const casilla3 = casillas[c].textContent;
+        
+        // Verificar si las 3 casillas:
+        // 1. Tienen contenido (no están vacías)
+        // 2. Todas tienen el mismo símbolo
+        if (casilla1 && casilla1 === casilla2 && casilla1 === casilla3) {
+          console.log(`🎉 Victoria detectada: ${casilla1} en combinación [${combinacion}]`);
+          
+          // Retornar objeto con información de la victoria
+          return {
+            ganador: casilla1,        // "X" o "O"
+            combinacion: combinacion  // [0,1,2] o [0,4,8], etc.
+          };
+        }
+      }
+      
+      // Si ninguna combinación ganó, retornar null
+      return null;
+    }
+    
+    /**
+     * Verifica si hay empate (tablero lleno sin ganador)
+     * @returns {boolean} - true si todas las casillas están ocupadas
+     */
+    function verificarEmpate() {
+      // Array.from() convierte NodeList a Array real
+      // every() verifica que TODAS las casillas cumplan la condición
+      return Array.from(casillas).every(casilla => casilla.textContent !== "");
+    }
+    
+    // ========== FUNCIONES DE FINALIZACIÓN ==========
+    
+    /**
+     * Muestra el ganador y resalta las casillas ganadoras
+     * @param {string} ganador - "X" o "O"
+     * @param {Array} combinacion - Array con índices de casillas ganadoras
+     */
+    function mostrarGanador(ganador, combinacion) {
+      // Desactivar juego
+      juegoActivo = false;
+      
+      // Resaltar visualmente las casillas ganadoras
+      combinacion.forEach(index => {
+        casillas[index].classList.add('ganadora');
+      });
+      
+      // Mostrar mensaje de victoria
+      mensaje.textContent = `🎉 ¡${ganador} ha ganado!`;
+      mensaje.classList.add('visible', 'victoria');
+      
+      console.log(`🏆 Ganador: ${ganador}`);
+    }
+    
+    /**
+     * Muestra mensaje de empate
+     */
+    function mostrarEmpate() {
+      // Desactivar juego
+      juegoActivo = false;
+      
+      // Mostrar mensaje de empate
+      mensaje.textContent = "😐 ¡Empate!";
+      mensaje.classList.add('visible', 'empate');
+      
+      console.log("🤝 Empate - Tablero lleno");
+    }
+    
+    // ========== FUNCIÓN PRINCIPAL DE JUEGO ==========
+    
+    /**
+     * Ejecuta una jugada en una casilla
+     * @param {HTMLElement} casilla - El elemento de la casilla clickeada
+     */
+    function jugar(casilla) {
+      // ========== GUARD CLAUSES (Validaciones) ==========
+      
+      // Guard 1: Verificar si el juego está activo
+      if (!juegoActivo) {
+        console.log("⚠️ El juego ha terminado");
+        return;
+      }
+      
+      // Guard 2: Verificar si la casilla está vacía
+      if (casilla.textContent !== "") {
+        console.log("⚠️ Casilla ocupada");
+        return;
+      }
+      
+      // ========== REALIZAR JUGADA ==========
+      
+      // Escribir el símbolo del turno actual
+      casilla.textContent = turno;
+      casilla.classList.add('ocupada', turno.toLowerCase());
+      
+      console.log(`✅ ${turno} juega en casilla ${casilla.dataset.index}`);
+      
+      // ========== VERIFICAR RESULTADO ==========
+      
+      // Verificar victoria INMEDIATAMENTE después de jugar
+      const resultado = verificarVictoria();
+      if (resultado) {
+        // Hay un ganador
+        mostrarGanador(resultado.ganador, resultado.combinacion);
+        return; // Terminar función
+      }
+      
+      // Verificar empate (solo si no hay ganador)
+      if (verificarEmpate()) {
+        // Tablero lleno sin ganador
+        mostrarEmpate();
+        return; // Terminar función
+      }
+      
+      // ========== CAMBIAR TURNO ==========
+      // Si llegamos aquí, el juego continúa
+      turno = turno === "X" ? "O" : "X";
+      turnoActual.textContent = turno;
+      
+      console.log(`➡️ Turno de ${turno}`);
+    }
+    
+    // ========== FUNCIÓN DE REINICIO ==========
+    
+    /**
+     * Reinicia el juego al estado inicial
+     */
+    function reiniciar() {
+      console.log("🔄 Reiniciando juego...");
+      
+      // Limpiar todas las casillas
+      casillas.forEach(casilla => {
+        casilla.textContent = "";
+        casilla.classList.remove('ocupada', 'x', 'o', 'ganadora');
+      });
+      
+      // Reiniciar estado
+      turno = "X";
+      juegoActivo = true;
+      turnoActual.textContent = turno;
+      
+      // Ocultar mensaje
+      mensaje.classList.remove('visible', 'victoria', 'empate');
+      
+      console.log("✨ Juego reiniciado");
+    }
+    
+    // ========== EVENT LISTENERS ==========
+    
+    // Event delegation: un solo listener en el tablero
+    tablero.addEventListener('click', (e) => {
+      // Verificar que el click fue en una casilla
+      if (e.target.classList.contains('casilla')) {
+        jugar(e.target);
+      }
+    });
+    
+    // Listener del botón reiniciar
+    btnReiniciar.addEventListener('click', reiniciar);
+    
+    // ========== CONCEPTOS CLAVE DEL EJERCICIO 7 ==========
+    
+    // ✅ ARRAYS DE COMBINACIONES
+    // Definimos todas las formas posibles de ganar
+    // Es más eficiente que verificar todo el tablero cada vez
+    
+    // ✅ ALGORITMO DE VERIFICACIÓN
+    // for...of itera sobre cada combinación
+    // Destructuring [a,b,c] extrae los índices
+    // Comparamos si las 3 casillas tienen el mismo valor
+    
+    // ✅ EVERY() - Método de arrays
+    // Verifica que TODOS los elementos cumplan una condición
+    // Retorna true solo si TODOS son true
+    // Ejemplo:
+    // [1, 2, 3].every(n => n > 0) → true
+    // [1, 2, 0].every(n => n > 0) → false
+    
+    // ✅ GESTIÓN DE ESTADOS
+    // juegoActivo = bandera (flag) que controla si se puede jugar
+    // Previene jugadas después de terminar el juego
+    
+    // ✅ EARLY RETURNS
+    // Usar return para salir de la función cuando detectamos victoria/empate
+    // Evita ejecutar código innecesario
+    
+    // ✅ SEPARACIÓN DE RESPONSABILIDADES
+    // Cada función tiene UNA responsabilidad:
+    //   • verificarVictoria() → Solo verifica
+    //   • mostrarGanador() → Solo muestra resultado
+    //   • jugar() → Coordina todo
+    
+    // ========== FLUJO COMPLETO DE UNA JUGADA ==========
+    
+    // 1. Usuario hace click
+    // 2. Event delegation captura el click
+    // 3. Verifica que sea una casilla
+    // 4. Llama a jugar(casilla)
+    //    4.1. Guard: ¿juego activo? → Si no, return
+    //    4.2. Guard: ¿casilla vacía? → Si no, return
+    //    4.3. Escribir símbolo
+    //    4.4. Verificar victoria
+    //        4.4.1. Si hay victoria → mostrarGanador() → return
+    //    4.5. Verificar empate
+    //        4.5.1. Si hay empate → mostrarEmpate() → return
+    //    4.6. Cambiar turno
+    // 5. Esperar siguiente click
+    
+    // ========== OPTIMIZACIONES POSIBLES ==========
+    
+    // 1. En lugar de verificar TODAS las combinaciones,
+    //    podrías verificar solo las que incluyen la última casilla jugada
+    
+    // 2. Podrías llevar un contador de jugadas:
+    //    let jugadas = 0;
+    //    jugadas++;
+    //    if (jugadas === 9 && !hayGanador) → empate
+    //    (Más eficiente que verificar todas las casillas)
+    
+    // 3. Podrías almacenar el estado en un array:
+    //    let estado = ["", "", "", "", "", "", "", "", ""];
+    //    (Facilita verificaciones y permite deshacer jugadas)
+  </script>
+
+</body>
+</html>
