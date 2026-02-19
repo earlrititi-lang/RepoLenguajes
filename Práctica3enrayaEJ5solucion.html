@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Ejercicio 5 - Tablero 1x3</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    h1 {
+      color: white;
+      margin-bottom: 20px;
+    }
+    
+    .info {
+      background: white;
+      padding: 15px 30px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .tablero {
+      display: flex;
+      gap: 5px;
+      background-color: #333;
+      padding: 5px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    
+    .casilla {
+      width: 100px;
+      height: 100px;
+      background-color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 48px;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.3s;
+      border-radius: 4px;
+    }
+    
+    .casilla:hover:not(.ocupada) {
+      background-color: #f0f0f0;
+      transform: scale(1.05);
+    }
+    
+    .casilla.ocupada {
+      cursor: not-allowed;
+    }
+    
+    .x {
+      color: #e74c3c;
+    }
+    
+    .o {
+      color: #3498db;
+    }
+    
+    button {
+      margin-top: 20px;
+      padding: 10px 30px;
+      font-size: 16px;
+      background: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎮 Mini Tres en Raya - 1×3</h1>
+  
+  <div class="info">
+    Turno: <strong id="turnoActual">X</strong>
+  </div>
+
+  <div class="tablero">
+    <div id="c0" class="casilla"></div>
+    <div id="c1" class="casilla"></div>
+    <div id="c2" class="casilla"></div>
+  </div>
+
+  <button id="btnReiniciar">Reiniciar</button>
+
+  <script>
+    // ========== SOLUCIÓN EJERCICIO 5 ==========
+    
+    // 1) VARIABLE DE TURNO GLOBAL
+    // Global = accesible desde cualquier función
+    let turno = "X";
+    
+    // 2) SELECCIONAR ELEMENTOS
+    const turnoActual = document.querySelector('#turnoActual');
+    const btnReiniciar = document.querySelector('#btnReiniciar');
+    
+    // 3) FUNCIÓN REUTILIZABLE PARA JUGAR
+    // Esta función puede usarse con CUALQUIER casilla que le pases
+    // Parámetro: casilla = el elemento HTML sobre el que se hizo click
+    function jugar(casilla) {
+      // Guard clause: si está ocupada, salir
+      if (casilla.textContent !== "") {
+        console.log("❌ Casilla ocupada");
+        return;
+      }
+      
+      // Escribir turno actual
+      casilla.textContent = turno;
+      
+      // Añadir clases CSS
+      casilla.classList.add('ocupada');
+      casilla.classList.add(turno.toLowerCase()); // escribe 'x' o 'o'
+      
+      // Cambiar turno para el siguiente jugador
+      turno = turno === "X" ? "O" : "X";
+      turnoActual.textContent = turno;
+      
+      console.log(`✅ Jugada realizada. Siguiente turno: ${turno}`);
+    }
+    
+    // 4) SELECCIONAR LAS 3 CASILLAS Y AÑADIR LISTENERS
+    const casilla0 = document.querySelector('#c0');
+    const casilla1 = document.querySelector('#c1');
+    const casilla2 = document.querySelector('#c2');
+    
+    // Cada casilla tiene su propio listener
+    // Todos llaman a la MISMA función jugar() pero con diferente casilla
+    casilla0.addEventListener('click', () => jugar(casilla0));
+    casilla1.addEventListener('click', () => jugar(casilla1));
+    casilla2.addEventListener('click', () => jugar(casilla2));
+    
+    // 5) FUNCIÓN PARA REINICIAR
+    function reiniciar() {
+      // querySelectorAll devuelve TODAS las casillas
+      const casillas = document.querySelectorAll('.casilla');
+      
+      // forEach itera sobre cada casilla
+      casillas.forEach(casilla => {
+        // Limpiar contenido
+        casilla.textContent = "";
+        
+        // Quitar múltiples clases a la vez
+        casilla.classList.remove('ocupada', 'x', 'o');
+      });
+      
+      // Reiniciar turno
+      turno = "X";
+      turnoActual.textContent = turno;
+      
+      console.log("🔄 Juego reiniciado");
+    }
+    
+    // Añadir listener al botón de reiniciar
+    btnReiniciar.addEventListener('click', reiniciar);
+    
+    // ========== CONCEPTOS CLAVE ==========
+    
+    // ✅ FUNCIONES REUTILIZABLES
+    // En lugar de repetir código 3 veces, creamos UNA función
+    // que funciona con cualquier casilla que le pasemos
+    
+    // ❌ SIN función reutilizable (código repetitivo):
+    // casilla0.addEventListener('click', () => {
+    //   if (casilla0.textContent === "") {
+    //     casilla0.textContent = turno;
+    //     casilla0.classList.add('ocupada');
+    //     turno = turno === "X" ? "O" : "X";
+    //   }
+    // });
+    // casilla1.addEventListener('click', () => {
+    //   if (casilla1.textContent === "") { // ¡Misma lógica!
+    //     casilla1.textContent = turno;
+    //     casilla1.classList.add('ocupada');
+    //     turno = turno === "X" ? "O" : "X";
+    //   }
+    // });
+    // casilla2.addEventListener('click', () => {
+    //   if (casilla2.textContent === "") { // ¡Otra vez!
+    //     casilla2.textContent = turno;
+    //     casilla2.classList.add('ocupada');
+    //     turno = turno === "X" ? "O" : "X";
+    //   }
+    // });
+    
+    // ✅ CON función reutilizable (limpio):
+    // function jugar(casilla) { // Lógica en UN solo lugar
+    //   if (casilla.textContent === "") {
+    //     casilla.textContent = turno;
+    //     casilla.classList.add('ocupada');
+    //     turno = turno === "X" ? "O" : "X";
+    //   }
+    // }
+    // casilla0.addEventListener('click', () => jugar(casilla0));
+    // casilla1.addEventListener('click', () => jugar(casilla1));
+    // casilla2.addEventListener('click', () => jugar(casilla2));
+    
+    // ✅ ARROW FUNCTIONS EN LISTENERS
+    // () => jugar(casilla0) crea una función que llama a jugar
+    // Es equivalente a:
+    // function() { jugar(casilla0); }
+    
+    // ✅ querySelectorAll y forEach
+    // querySelectorAll('.casilla') → Devuelve TODAS las casillas
+    // forEach(casilla => {...}) → Ejecuta código para cada una
+    
+    // ✅ classList.remove con múltiples clases
+    // Puedes quitar varias clases a la vez separadas por comas
+    // casilla.classList.remove('clase1', 'clase2', 'clase3');
+    
+    // ✅ toLowerCase()
+    // Convierte texto a minúsculas
+    // "X".toLowerCase() → "x"
+    // "O".toLowerCase() → "o"
+    // Útil para nombres de clases CSS
+    
+    // ========== VENTAJAS DE ESTE ENFOQUE ==========
+    // 1. Menos código (DRY - Don't Repeat Yourself)
+    // 2. Más fácil de mantener (cambias en un solo lugar)
+    // 3. Escalable (fácil de expandir a 9 casillas)
+    // 4. Código más profesional y legible
+  </script>
+
+</body>
+</html>

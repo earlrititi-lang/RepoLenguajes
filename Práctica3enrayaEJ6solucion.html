@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Ejercicio 6 - Tablero 3x3</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    h1 {
+      color: white;
+      margin-bottom: 20px;
+    }
+    
+    .info {
+      background: white;
+      padding: 15px 30px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .tablero {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 5px;
+      background-color: #333;
+      padding: 5px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    
+    .casilla {
+      background-color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 48px;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.3s;
+    }
+    
+    .casilla:hover:not(.ocupada) {
+      background-color: #f0f0f0;
+      transform: scale(1.05);
+    }
+    
+    .casilla.ocupada {
+      cursor: not-allowed;
+    }
+    
+    .x {
+      color: #e74c3c;
+    }
+    
+    .o {
+      color: #3498db;
+    }
+    
+    button {
+      margin-top: 20px;
+      padding: 10px 30px;
+      font-size: 16px;
+      background: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: all 0.3s;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎮 Tres en Raya - Tablero Base</h1>
+  
+  <div class="info">
+    Turno: <strong id="turnoActual">X</strong>
+  </div>
+
+  <div class="tablero" id="tablero">
+    <!-- Usamos data-index para identificar cada casilla -->
+    <div class="casilla" data-index="0"></div>
+    <div class="casilla" data-index="1"></div>
+    <div class="casilla" data-index="2"></div>
+    <div class="casilla" data-index="3"></div>
+    <div class="casilla" data-index="4"></div>
+    <div class="casilla" data-index="5"></div>
+    <div class="casilla" data-index="6"></div>
+    <div class="casilla" data-index="7"></div>
+    <div class="casilla" data-index="8"></div>
+  </div>
+
+  <button id="btnReiniciar">Reiniciar Juego</button>
+
+  <script>
+    // ========== SOLUCIÓN EJERCICIO 6 ==========
+    
+    // 1) ESTADO DEL JUEGO
+    let turno = "X";
+    const tablero = document.querySelector('#tablero');
+    const turnoActual = document.querySelector('#turnoActual');
+    const btnReiniciar = document.querySelector('#btnReiniciar');
+    
+    // 2) FUNCIÓN PARA JUGAR EN UNA CASILLA
+    // Esta es la MISMA función del ejercicio 5
+    // La reutilizamos aquí
+    function jugar(casilla) {
+      // Guard clause: si está ocupada, salir
+      if (casilla.textContent !== "") {
+        console.log("❌ Casilla ocupada");
+        return;
+      }
+      
+      // Escribir turno
+      casilla.textContent = turno;
+      casilla.classList.add('ocupada');
+      casilla.classList.add(turno.toLowerCase()); // Añadir clase x u o
+      
+      // Cambiar turno
+      turno = turno === "X" ? "O" : "X";
+      turnoActual.textContent = turno;
+      
+      console.log(`✅ Jugada en casilla ${casilla.dataset.index}. Siguiente: ${turno}`);
+    }
+    
+    // 3) EVENT DELEGATION: UN SOLO LISTENER EN EL TABLERO
+    // En lugar de 9 listeners (uno por casilla)
+    // ponemos 1 solo listener en el PADRE (el tablero)
+    tablero.addEventListener('click', (e) => {
+      // e = evento que contiene información sobre el click
+      // e.target = el elemento específico que fue clickeado
+      // e.currentTarget = el elemento que tiene el listener (tablero)
+      
+      console.log('Click en:', e.target);
+      console.log('Listener está en:', e.currentTarget);
+      
+      // Verificar que se hizo clic en una CASILLA
+      // (no en el tablero o en los espacios entre casillas)
+      if (e.target.classList.contains('casilla')) {
+        // Ahora sabemos con certeza que es una casilla
+        jugar(e.target);
+      } else {
+        console.log('⚠️ Click fuera de una casilla');
+      }
+    });
+    
+    // 4) FUNCIÓN PARA REINICIAR
+    function reiniciar() {
+      const casillas = document.querySelectorAll('.casilla');
+      
+      casillas.forEach(casilla => {
+        casilla.textContent = "";
+        casilla.classList.remove('ocupada', 'x', 'o');
+      });
+      
+      turno = "X";
+      turnoActual.textContent = turno;
+      
+      console.log("🔄 Juego reiniciado");
+    }
+    
+    btnReiniciar.addEventListener('click', reiniciar);
+    
+    // ========== CONCEPTOS CLAVE: EVENT DELEGATION ==========
+    
+    // ✅ ¿QUÉ ES EVENT DELEGATION?
+    // Técnica donde ponemos UN listener en el elemento PADRE
+    // en lugar de poner listeners en cada elemento HIJO
+    
+    // ✅ ¿CÓMO FUNCIONA?
+    // Cuando haces click en una casilla, el evento "burbujea" hacia arriba:
+    // 
+    // Casilla (donde hiciste click)
+    //    ↓
+    // Tablero (donde está el listener) ← Aquí lo capturamos
+    //    ↓
+    // Body
+    //    ↓
+    // HTML
+    
+    // ✅ e.target vs e.currentTarget
+    // e.target → El elemento que RECIBIÓ el click (la casilla)
+    // e.currentTarget → El elemento que TIENE el listener (el tablero)
+    
+    // Ejemplo:
+    // Si haces click en casilla #4:
+    //   e.target → <div class="casilla" data-index="4">
+    //   e.currentTarget → <div class="tablero" id="tablero">
+    
+    // ✅ classList.contains('clase')
+    // Verifica si un elemento tiene una clase específica
+    // Devuelve true o false
+    
+    // ========== COMPARACIÓN COMPLETA ==========
+    
+    // ❌ SIN EVENT DELEGATION (9 listeners):
+    // const c0 = document.querySelector('[data-index="0"]');
+    // const c1 = document.querySelector('[data-index="1"]');
+    // const c2 = document.querySelector('[data-index="2"]');
+    // const c3 = document.querySelector('[data-index="3"]');
+    // const c4 = document.querySelector('[data-index="4"]');
+    // const c5 = document.querySelector('[data-index="5"]');
+    // const c6 = document.querySelector('[data-index="6"]');
+    // const c7 = document.querySelector('[data-index="7"]');
+    // const c8 = document.querySelector('[data-index="8"]');
+    // 
+    // c0.addEventListener('click', () => jugar(c0));
+    // c1.addEventListener('click', () => jugar(c1));
+    // c2.addEventListener('click', () => jugar(c2));
+    // c3.addEventListener('click', () => jugar(c3));
+    // c4.addEventListener('click', () => jugar(c4));
+    // c5.addEventListener('click', () => jugar(c5));
+    // c6.addEventListener('click', () => jugar(c6));
+    // c7.addEventListener('click', () => jugar(c7));
+    // c8.addEventListener('click', () => jugar(c8));
+    // 
+    // Total: 9 event listeners en memoria
+    
+    // ✅ CON EVENT DELEGATION (1 listener):
+    // const tablero = document.querySelector('#tablero');
+    // tablero.addEventListener('click', (e) => {
+    //   if (e.target.classList.contains('casilla')) {
+    //     jugar(e.target);
+    //   }
+    // });
+    // 
+    // Total: 1 solo event listener en memoria
+    
+    // ========== VENTAJAS ==========
+    // 1. ⚡ Más eficiente: Menos memoria (1 listener vs 9)
+    // 2. 🔧 Más fácil de mantener: Código centralizado
+    // 3. 📈 Escalable: Funciona igual con 9 o 900 casillas
+    // 4. 🎯 Dinámico: Funciona con elementos añadidos después
+    //    (si añades casillas con JavaScript, ¡ya tienen listener!)
+    
+    // ========== CASOS DE USO REALES ==========
+    
+    // 1) Listas dinámicas:
+    // const lista = document.querySelector('#lista');
+    // lista.addEventListener('click', (e) => {
+    //   if (e.target.tagName === 'LI') {
+    //     e.target.remove();
+    //   }
+    // });
+    // Funciona con items que añadas después
+    
+    // 2) Tablas grandes:
+    // const tabla = document.querySelector('table');
+    // tabla.addEventListener('click', (e) => {
+    //   if (e.target.tagName === 'TD') {
+    //     console.log('Celda:', e.target.textContent);
+    //   }
+    // });
+    // Una tabla con 1000 celdas = 1 solo listener
+    
+    // 3) Menús complejos:
+    // const menu = document.querySelector('#menu');
+    // menu.addEventListener('click', (e) => {
+    //   if (e.target.matches('.menu-item')) {
+    //     // Manejar item
+    //   }
+    // });
+  </script>
+
+</body>
+</html>
